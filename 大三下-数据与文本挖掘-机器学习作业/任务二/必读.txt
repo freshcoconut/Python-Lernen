@@ -1,0 +1,18 @@
+1. 运行顺序：
+	house_description.py --> house_feature_importance.py --> house_model.py
+
+2. 设置随机器的种子能让SVM输出相同的结果，但是GBR和ABR的运行结果总是不同。。。
+
+3. note:
+	标准化之前：
+	training set一共81列
+	80列是数据
+	第81列是结果（房价）
+
+	标准化之后：
+	X_train一共295个特征值
+	前27个是数字特征值
+	后268个是OneHot之后的文本特征值
+
+	第3个特征： LotArea(Lot size in square feet)  0.583582266714989
+	第12个特征： TotalBsmtSF(Total square feet of basement area)  0.123422778042043

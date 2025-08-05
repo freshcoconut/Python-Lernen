@@ -1,0 +1,278 @@
+该文件不是用来运行的！！！！！！！！！
+
+house_description.py --> house_feature_importance.py --> house_model.py
+
+这是我运行时的输出结果。设置随机种子也没法让GBR和ABR的输出保持不变。。。
+
+###########################################################
+1. house_description.py
+###########################################################
+运行结果：
+###########################################################
+$ python house_description.py
+Making directory(s): ./house_description/png/.
+Saving data_num_counts.
+Making directory(s): ./house_description/eps/.
+Saving data_num_counts.
+Making directory(s): ./house_description/png/num_plot/.
+Saving num_png_MSSubClass_visual_plot.
+Making directory(s): ./house_description/eps/num_plot/.
+Saving num_eps_MSSubClass_visual_plot.
+Saving num_png_LotFrontage_visual_plot.
+Saving num_eps_LotFrontage_visual_plot.
+Saving num_png_LotArea_visual_plot.
+Saving num_eps_LotArea_visual_plot.
+Saving num_png_OverallQual_visual_plot.
+Saving num_eps_OverallQual_visual_plot.
+Saving num_png_OverallCond_visual_plot.
+Saving num_eps_OverallCond_visual_plot.
+Saving num_png_YearBuilt_visual_plot.
+Saving num_eps_YearBuilt_visual_plot.
+Saving num_png_YearRemodAdd_visual_plot.
+Saving num_eps_YearRemodAdd_visual_plot.
+Saving num_png_MasVnrArea_visual_plot.
+Saving num_eps_MasVnrArea_visual_plot.
+Saving num_png_BsmtFinSF1_visual_plot.
+Saving num_eps_BsmtFinSF1_visual_plot.
+Saving num_png_BsmtFinSF2_visual_plot.
+Saving num_eps_BsmtFinSF2_visual_plot.
+Saving num_png_BsmtUnfSF_visual_plot.
+Saving num_eps_BsmtUnfSF_visual_plot.
+Saving num_png_TotalBsmtSF_visual_plot.
+Saving num_eps_TotalBsmtSF_visual_plot.
+Saving num_png_1stFlrSF_visual_plot.
+Saving num_eps_1stFlrSF_visual_plot.
+Saving num_png_2ndFlrSF_visual_plot.
+Saving num_eps_2ndFlrSF_visual_plot.
+Saving num_png_LowQualFinSF_visual_plot.
+Saving num_eps_LowQualFinSF_visual_plot.
+Saving num_png_GrLivArea_visual_plot.
+Saving num_eps_GrLivArea_visual_plot.
+Saving num_png_BsmtFullBath_visual_plot.
+Saving num_eps_BsmtFullBath_visual_plot.
+Saving num_png_BsmtHalfBath_visual_plot.
+Saving num_eps_BsmtHalfBath_visual_plot.
+Saving num_png_FullBath_visual_plot.
+Saving num_eps_FullBath_visual_plot.
+Saving num_png_HalfBath_visual_plot.
+Saving num_eps_HalfBath_visual_plot.
+Saving num_png_BedroomAbvGr_visual_plot.
+Saving num_eps_BedroomAbvGr_visual_plot.
+Saving num_png_KitchenAbvGr_visual_plot.
+Saving num_eps_KitchenAbvGr_visual_plot.
+Saving num_png_TotRmsAbvGrd_visual_plot.
+Saving num_eps_TotRmsAbvGrd_visual_plot.
+Saving num_png_Fireplaces_visual_plot.
+Saving num_eps_Fireplaces_visual_plot.
+Saving num_png_GarageYrBlt_visual_plot.
+Saving num_eps_GarageYrBlt_visual_plot.
+Saving num_png_GarageCars_visual_plot.
+Saving num_eps_GarageCars_visual_plot.
+Saving num_png_GarageArea_visual_plot.
+Saving num_eps_GarageArea_visual_plot.
+Saving num_png_WoodDeckSF_visual_plot.
+Saving num_eps_WoodDeckSF_visual_plot.
+Saving num_png_OpenPorchSF_visual_plot.
+Saving num_eps_OpenPorchSF_visual_plot.
+Saving num_png_EnclosedPorch_visual_plot.
+Saving num_eps_EnclosedPorch_visual_plot.
+Saving num_png_3SsnPorch_visual_plot.
+Saving num_eps_3SsnPorch_visual_plot.
+Saving num_png_ScreenPorch_visual_plot.
+Saving num_eps_ScreenPorch_visual_plot.
+Saving num_png_PoolArea_visual_plot.
+Saving num_eps_PoolArea_visual_plot.
+Saving num_png_MiscVal_visual_plot.
+Saving num_eps_MiscVal_visual_plot.
+Saving num_png_MoSold_visual_plot.
+Saving num_eps_MoSold_visual_plot.
+Saving num_png_YrSold_visual_plot.
+Saving num_eps_YrSold_visual_plot.
+Making directory(s): ./house_description/png/cat_scatter/.
+Saving cat_png_MSZoning_visual_scatter.
+Making directory(s): ./house_description/eps/cat_scatter/.
+Saving cat_eps_MSZoning_visual_scatter.
+Saving cat_png_Street_visual_scatter.
+Saving cat_eps_Street_visual_scatter.
+Saving cat_png_Alley_visual_scatter.
+Saving cat_eps_Alley_visual_scatter.
+Saving cat_png_LotShape_visual_scatter.
+Saving cat_eps_LotShape_visual_scatter.
+Saving cat_png_LandContour_visual_scatter.
+Saving cat_eps_LandContour_visual_scatter.
+Saving cat_png_Utilities_visual_scatter.
+Saving cat_eps_Utilities_visual_scatter.
+Saving cat_png_LotConfig_visual_scatter.
+Saving cat_eps_LotConfig_visual_scatter.
+Saving cat_png_LandSlope_visual_scatter.
+Saving cat_eps_LandSlope_visual_scatter.
+Saving cat_png_Neighborhood_visual_scatter.
+Saving cat_eps_Neighborhood_visual_scatter.
+Saving cat_png_Condition1_visual_scatter.
+Saving cat_eps_Condition1_visual_scatter.
+Saving cat_png_Condition2_visual_scatter.
+Saving cat_eps_Condition2_visual_scatter.
+Saving cat_png_BldgType_visual_scatter.
+Saving cat_eps_BldgType_visual_scatter.
+Saving cat_png_HouseStyle_visual_scatter.
+Saving cat_eps_HouseStyle_visual_scatter.
+Saving cat_png_RoofStyle_visual_scatter.
+Saving cat_eps_RoofStyle_visual_scatter.
+Saving cat_png_RoofMatl_visual_scatter.
+Saving cat_eps_RoofMatl_visual_scatter.
+Saving cat_png_Exterior1st_visual_scatter.
+Saving cat_eps_Exterior1st_visual_scatter.
+Saving cat_png_Exterior2nd_visual_scatter.
+Saving cat_eps_Exterior2nd_visual_scatter.
+Saving cat_png_MasVnrType_visual_scatter.
+Saving cat_eps_MasVnrType_visual_scatter.
+Saving cat_png_ExterQual_visual_scatter.
+Saving cat_eps_ExterQual_visual_scatter.
+Saving cat_png_ExterCond_visual_scatter.
+Saving cat_eps_ExterCond_visual_scatter.
+Saving cat_png_Foundation_visual_scatter.
+Saving cat_eps_Foundation_visual_scatter.
+Saving cat_png_BsmtQual_visual_scatter.
+Saving cat_eps_BsmtQual_visual_scatter.
+Saving cat_png_BsmtCond_visual_scatter.
+Saving cat_eps_BsmtCond_visual_scatter.
+Saving cat_png_BsmtExposure_visual_scatter.
+Saving cat_eps_BsmtExposure_visual_scatter.
+Saving cat_png_BsmtFinType1_visual_scatter.
+Saving cat_eps_BsmtFinType1_visual_scatter.
+Saving cat_png_BsmtFinType2_visual_scatter.
+Saving cat_eps_BsmtFinType2_visual_scatter.
+Saving cat_png_Heating_visual_scatter.
+Saving cat_eps_Heating_visual_scatter.
+Saving cat_png_HeatingQC_visual_scatter.
+Saving cat_eps_HeatingQC_visual_scatter.
+Saving cat_png_CentralAir_visual_scatter.
+Saving cat_eps_CentralAir_visual_scatter.
+Saving cat_png_Electrical_visual_scatter.
+Saving cat_eps_Electrical_visual_scatter.
+Saving cat_png_KitchenQual_visual_scatter.
+Saving cat_eps_KitchenQual_visual_scatter.
+Saving cat_png_Functional_visual_scatter.
+Saving cat_eps_Functional_visual_scatter.
+Saving cat_png_FireplaceQu_visual_scatter.
+Saving cat_eps_FireplaceQu_visual_scatter.
+Saving cat_png_GarageType_visual_scatter.
+Saving cat_eps_GarageType_visual_scatter.
+Saving cat_png_GarageFinish_visual_scatter.
+Saving cat_eps_GarageFinish_visual_scatter.
+Saving cat_png_GarageQual_visual_scatter.
+Saving cat_eps_GarageQual_visual_scatter.
+Saving cat_png_GarageCond_visual_scatter.
+Saving cat_eps_GarageCond_visual_scatter.
+Saving cat_png_PavedDrive_visual_scatter.
+Saving cat_eps_PavedDrive_visual_scatter.
+Saving cat_png_PoolQC_visual_scatter.
+Saving cat_eps_PoolQC_visual_scatter.
+Saving cat_png_Fence_visual_scatter.
+Saving cat_eps_Fence_visual_scatter.
+Saving cat_png_MiscFeature_visual_scatter.
+Saving cat_eps_MiscFeature_visual_scatter.
+Saving cat_png_SaleType_visual_scatter.
+Saving cat_eps_SaleType_visual_scatter.
+Saving cat_png_SaleCondition_visual_scatter.
+Saving cat_eps_SaleCondition_visual_scatter.
+saving 索引所对应的标签.csv
+###########################################################
+
+2. house_feature_importance.py
+###########################################################
+运行结果
+###########################################################
+$ python house_feature_importance.py
+Preparing and refining the sets.
+train_num_shape: (1460, 27)
+train_cat_shape: (1460, 268)
+Sets are prepared and refined.
+Making directory(s): ./house_feature_importance/.
+Saving feature.csv.
+Saving feature_sorted.csv.
+Saving scatter_feature_importance.
+###########################################################
+
+3. house_model.py
+###########################################################
+运行结果
+###########################################################
+$ python house_model.py
+Getting the training set.
+Getting the testing set and the sample set.
+Getting feature importance.
+Preparing and refining the sets.
+Sets are prepared and refined.
+
+Generating model(s) as member(s).
+We will generate 16 SVR(s), 16 GBR(s), 10 ABR(s).
+Generating SVR(s).
+SVR: 1/16 done! score: 0.933357640391794  SVR(C=1.4, degree=2, epsilon=0.3)
+SVR: 2/16 done! score: 0.812993079038421  SVR(C=0.4, degree=10, epsilon=0.7, kernel='linear')
+SVR: 3/16 done! score: 0.933357640391794  SVR(C=1.4, degree=8, epsilon=0.3)
+SVR: 4/16 done! score: 0.933357640391794  SVR(C=1.4, degree=9, epsilon=0.3)
+SVR: 5/16 done! score: 0.8397347101193189  SVR(C=0.4, epsilon=0.4, kernel='linear')
+SVR: 6/16 done! score: 0.9392571797173856  SVR(C=1.2, degree=10, epsilon=0.2)
+SVR: 7/16 done! score: 0.918317394806964  SVR(C=1.4, degree=6, epsilon=0.4)
+SVR: 8/16 done! score: 0.8826670168229886  SVR(C=1.6, degree=8, epsilon=0.6)
+SVR: 9/16 done! score: 0.9232008201349666  SVR(C=1.6, degree=6, epsilon=0.4)
+SVR: 10/16 done! score: 0.8270309681302039  SVR(C=0.2, degree=5, epsilon=0.6, kernel='linear')
+SVR: 11/16 done! score: 0.8275590083595  SVR(C=0.6, degree=9, epsilon=0.6, kernel='linear')
+SVR: 12/16 done! score: 0.8999157985523356  SVR(C=1.4, degree=8, epsilon=0.5)
+SVR: 13/16 done! score: 0.9464388352892089  SVR(C=1.4, degree=8, epsilon=0.2)
+SVR: 14/16 done! score: 0.8602295191998717  SVR(C=1.6, degree=2, epsilon=0.7)
+SVR: 15/16 done! score: 0.9044078921223938  SVR(C=1.6, epsilon=0.5)
+SVR: 16/16 done! score: 0.9392571797173856  SVR(C=1.2, epsilon=0.2)
+We have successfully generated 16 SVR(s).
+Generating GBR(s).
+GBR: 1/16 done! score: 0.9908829058404207  GradientBoostingRegressor(learning_rate=0.5, loss='huber', max_features='auto')
+GBR: 2/16 done! score: 0.9835105756566681  GradientBoostingRegressor(criterion='mse', learning_rate=0.3, loss='huber',
+                          max_features='auto')
+GBR: 3/16 done! score: 0.981591018845118  GradientBoostingRegressor(criterion='mse', learning_rate=0.3, loss='huber',
+                          max_features='auto')
+GBR: 4/16 done! score: 0.9281499579931975  GradientBoostingRegressor(learning_rate=0.4, loss='lad', max_features='sqrt')
+GBR: 5/16 done! score: 0.9510026534127038  GradientBoostingRegressor(criterion='mse', loss='huber', max_features='auto')
+GBR: 6/16 done! score: 0.9744864689368227  GradientBoostingRegressor(learning_rate=0.2, loss='huber', max_features='auto')
+GBR: 7/16 done! score: 0.966326575399972  GradientBoostingRegressor(max_features='auto')
+GBR: 8/16 done! score: 0.9679114534051618  GradientBoostingRegressor(learning_rate=0.2, max_features='sqrt')
+GBR: 9/16 done! score: 0.9723936496537421  GradientBoostingRegressor(criterion='mse', learning_rate=0.3, loss='huber',
+                          max_features='sqrt')
+GBR: 10/16 done! score: 0.9736056113189555  GradientBoostingRegressor(learning_rate=0.2, loss='huber', max_features='auto')
+GBR: 11/16 done! score: 0.9749603276526679  GradientBoostingRegressor(criterion='mse', learning_rate=0.2, loss='huber',
+                          max_features='auto')
+GBR: 12/16 done! score: 0.9484783064779051  GradientBoostingRegressor(criterion='mse', max_features='sqrt')
+GBR: 13/16 done! score: 0.9529577183211357  GradientBoostingRegressor(criterion='mse', loss='huber', max_features='auto')
+GBR: 14/16 done! score: 0.9736056113189555  GradientBoostingRegressor(criterion='mse', learning_rate=0.2, loss='huber',
+                          max_features='auto')
+GBR: 15/16 done! score: 0.9824417477535988  GradientBoostingRegressor(learning_rate=0.2, max_features='auto')
+GBR: 16/16 done! score: 0.9748620191181754  GradientBoostingRegressor(learning_rate=0.2, loss='huber', max_features='auto')
+We have successfully generated 16 GBR(s).
+Generating ABR(s).
+ABR: 1/10 done! score: 0.8920755524524758  AdaBoostRegressor(learning_rate=0.8, loss='square', n_estimators=80)
+ABR: 2/10 done! score: 0.8838390677742329  AdaBoostRegressor(learning_rate=0.9, n_estimators=80)
+ABR: 3/10 done! score: 0.8915948933101925  AdaBoostRegressor(learning_rate=1.2, loss='square', n_estimators=70)
+ABR: 4/10 done! score: 0.883417704230598  AdaBoostRegressor(learning_rate=0.4, loss='exponential', n_estimators=90)
+ABR: 5/10 done! score: 0.8891242646226272  AdaBoostRegressor(learning_rate=1.1, loss='exponential')
+ABR: 6/10 done! score: 0.8857303626428468  AdaBoostRegressor(learning_rate=0.6, n_estimators=70)
+ABR: 7/10 done! score: 0.882888944752859  AdaBoostRegressor(learning_rate=1.2, n_estimators=90)
+ABR: 8/10 done! score: 0.8837334720348414  AdaBoostRegressor(learning_rate=0.8, loss='exponential', n_estimators=30)
+ABR: 9/10 done! score: 0.8764709483237575  AdaBoostRegressor(n_estimators=40)
+ABR: 10/10 done! score: 0.885898953214578  AdaBoostRegressor(learning_rate=1.1, n_estimators=80)
+We have successfully generated 10 ABR(s).
+VotingRegressor starts fitting.
+VotingRegressor fitted.
+The model is checking itself.
+score: 0.9532380012594343
+Start predicting.
+
+Compare our prediction with the sample of prediction(there is still no definitely correct answer):
+Generating scores of the regressor.
+r2_score: -17.078291733860425
+MSE: 4929359376.374376
+RMSE: 70209.39663872904
+MAE: 53115.39276597397
+Saving prediction_compared_with_sample.csv.
+Saving prediction_compared_with_sample_sorted.csv.
+Saving my_prediction.csv.
+###########################################################

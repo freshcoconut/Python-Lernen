@@ -1,0 +1,363 @@
+import random, os
+import numpy as np
+import pandas as pd
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler, OneHotEncoder
+from sklearn.impute import SimpleImputer
+from sklearn.svm import SVR
+from sklearn.model_selection import GridSearchCV
+from sklearn.metrics import r2_score, mean_squared_error, mean_absolute_error
+from sklearn.ensemble import VotingRegressor, GradientBoostingRegressor, AdaBoostRegressor
+from sklearn.decomposition import PCA
+
+#try to make directory
+def try_mkdir(dir_path):
+    if not os.path.exists(dir_path):
+        print("Making directory(s): " + dir_path + ".")
+        os.makedirs(dir_path)
+        
+#设置随机生成器的种子
+np.random.seed(30)
+random.seed(30)
+
+#define the methods
+
+#用训练集评价训练好的模型的拟合程度
+#模型自测
+def model_self_check(model, X, y):
+    print("The model is checking itself.")
+    score = model.score(X, y)
+    print("score: " + str(score) )
+    
+#模型返回自测分数
+def model_self_check_return_score(model, X, y):
+    return model.score(X, y)
+
+#返回回归器预测结果的各项指标
+def generate_score(y_correct, y_predict):
+    print("Generating scores of the regressor.")
+    rscore = r2_score(y_correct, y_predict)
+    print("r2_score: " + str(rscore))
+    mse = mean_squared_error(y_correct, y_predict)
+    print("MSE: " + str(mse))
+    rmse = mean_squared_error(y_correct, y_predict)**0.5
+    print("RMSE: " + str(rmse))
+    mae = mean_absolute_error(y_correct, y_predict)
+    print("MAE: " + str(mae))
+    
+#获得纯数字的Series
+def chooseNum(series, cat):#cat: cat_attribute
+    resultNum = series.drop(cat, axis=1)
+    return resultNum
+
+#去除不需要的数字变量
+def removeNum(series, num):#num: num_ignore
+    resultNum = series.drop(num, axis=1)
+    return resultNum
+
+#数组一删去与数组二相同的元素
+def minus(arr1, arr2):
+    return [x for x in arr1 if x not in arr2]
+
+#降维
+#用PCA降维，使集合X的方差解释率达到98%
+def withPCA(X_train, X_test):#训练集和测试集同时降维
+    pca = PCA(n_components=0.98)
+    pca.fit(X_train)
+    #transform 降维
+    X_train_pca = pca.transform(X_train)
+    X_test_pca = pca.transform(X_test)
+    return X_train_pca, X_test_pca
+
+#将训练集和测试集拼起来，进行OneHotEncode，然后分开
+def onehot_preprocessing(train_set, test_set, cat, cat_ig=[]):#cat: cat_attribute; cat_ignore=[] in default settings
+    #pointw: point_where_test_set_starts
+    pointw = (train_set.shape)[0]
+    whole_set = train_set.append(test_set, ignore_index=True)
+    #onehotencoder
+    oh_coder = OneHotEncoder(sparse=False)
+    cat_in_use = minus(cat, cat_ig)
+    whole_set_onehot = oh_coder.fit_transform(whole_set[cat_in_use])
+    train_set_onehot = whole_set_onehot[:pointw]
+    test_set_onehot = whole_set_onehot[pointw:]
+    return train_set_onehot, test_set_onehot
+
+#获得训练集和测试集中纯数字的数据，并用Pipeline完成标准化操作
+def num_preprocessing(train_set, test_set, cat, num_ig=[]):#cat: cat_attribute; num_ignore=[] in default settings
+    #remove cat_attributes
+    train_set_num_pre_pre = chooseNum(train_set, cat)
+    test_set_num_pre_pre = chooseNum(test_set, cat)
+    #remove digital columns that we do not need
+    train_set_num_pre = removeNum(train_set_num_pre_pre, num_ig)
+    test_set_num_pre = removeNum(test_set_num_pre_pre, num_ig)    
+    #Pipeline
+    pipe_num = Pipeline([
+        ('imputer', SimpleImputer(strategy="median")),
+        ('std_scaler', StandardScaler())
+    ])
+    #fit_transform
+    train_set_num = pipe_num.fit_transform(train_set_num_pre)
+    test_set_num = pipe_num.fit_transform(test_set_num_pre)
+    return train_set_num, test_set_num
+
+#进一步简化：一步完成数字与文本的标准化
+def formal_transform(train_set, test_set, cat, cat_ig=[], num_ig=[], index=False, index_important=[]):#cat: cat_attribute; cat_ignore=[] and num_ignore=[] in default settings; index(boolean): whether to consider the index of important features
+    train_num, test_num = num_preprocessing(train_set, test_set, cat, num_ig)
+    train_cat, test_cat = onehot_preprocessing(train_set, test_set, cat, cat_ig)
+    train_prepared = np.concatenate((train_num, train_cat), axis=1)
+    test_prepared = np.concatenate((test_num, test_cat), axis=1)
+    #用withPCA降维
+    if index:
+        return withPCA(train_prepared[:, index_important], test_prepared[:, index_important])
+    else:
+        return withPCA(train_prepared, test_prepared)
+    
+#简化scaler
+#归一化
+def to_scaler(y):
+    scaler = StandardScaler()
+    y_reshape = y.reshape(-1, 1)#变2D
+    y_scaler = scaler.fit_transform(y_reshape)
+    y_return = y_scaler.reshape(-1,)#变1D
+    return y_return, scaler
+
+#归一化后进行还原
+def from_scaler(y_scaler, scaler):
+    y_reshape = y_scaler.reshape(-1, 1)#变2D
+    y_inverse_scaler = scaler.inverse_transform(y_reshape)
+    y_return = y_inverse_scaler.reshape(-1,)#变1D
+    return y_return
+
+#SVR生成器
+#X_single, y_single表示它们是单个SVR的X, y
+#X_group, y_group表示它们是一堆SVR的X, y
+#单个SVR，包含fit，使用了GridSearchCV
+def SVRgenerator(X_single, y_single, kernel, degree, C, epsilon):
+    svr_init = SVR()
+    para = {'kernel': kernel,
+            'degree': degree,
+            'C': C,
+            'epsilon': epsilon
+            }
+    grid_svr = GridSearchCV(svr_init, para, n_jobs=-1)
+    grid_svr.fit(X_single, y_single)
+    return grid_svr.best_estimator_
+
+#批量生成SVR，返回VotingRegressor所需的estimators列表
+#number制定要产生多少个SVR
+#这个方法限定了kernel、degree、C、epsilon的取值（单独设置太麻烦了）
+def SVRgroup(X_group, y_group, number):
+    #默认值
+    kernel_default = ["linear", "poly", "rbf"]
+    degree_default = [2, 3, 4, 5, 6, 7, 8, 9, 10]
+    C_default = [0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6]
+    epsilon_default = [0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2]
+    #初始化返回值
+    estimators_group = []
+    #循环生成SVR
+    print("Generating SVR(s).")
+    for i in range(number):
+        name_i = "svr_" + str(i)
+        #随机选取超参数
+        kernel_i = random.sample(kernel_default, 2)
+        degree_i = random.sample(degree_default, 3)
+        C_i = random.sample(C_default, 3)
+        epsilon_i = random.sample(epsilon_default, 3)
+        #生成SVR
+        svr_i = SVRgenerator(X_group, y_group, kernel_i, degree_i, C_i, epsilon_i)
+        estimators_group.append((name_i, svr_i))
+        #反馈信息
+        self_score = model_self_check_return_score(svr_i, X_group, y_group)
+        print("SVR: " + str(i + 1) + "/" + str(number) + " done! " + "score: " + str(self_score) + "  " + str(svr_i))
+    #反馈信息
+    print("We have successfully generated " + str(number) + " SVR(s).")
+    return estimators_group
+
+#GBR生成器
+#X_single, y_single表示它们是单个GBR的X, y
+#X_group, y_group表示它们是一堆GBR的X, y
+#单个GBR，包含fit，使用了GridSearchCV
+def GBRgenerator(X_single, y_single, loss, learning_rate, criterion, max_features):
+    gbr_init = GradientBoostingRegressor()
+    para = {"loss": loss,
+            "learning_rate": learning_rate,
+            "criterion": criterion,
+            "max_features": max_features
+            }
+    grid_gbr = GridSearchCV(gbr_init, para, n_jobs=-1)
+    grid_gbr.fit(X_single, y_single)
+    return grid_gbr.best_estimator_
+
+#批量生成GBR，返回VotingRegressor所需的estimators列表
+#number制定要产生多少个GBR
+#这个方法限定了各个超参数的取值（单独设置太麻烦了）
+def GBRgroup(X_group, y_group, number):
+    #默认值
+    loss_default = ['ls', 'lad', 'huber']
+    learning_rate_default = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
+    criterion_default = ['friedman_mse', 'mse']
+    max_features_default = ['auto', 'sqrt', 'log2']
+    #初始化返回值
+    estimators_group = []
+    #循环生成SVR
+    print("Generating GBR(s).")
+    for i in range(number):
+        name_i = "gbr_" + str(i)
+        #随机选取超参数
+        loss_i = random.sample(loss_default, 2)
+        learning_rate_i = random.sample(learning_rate_default, 3)
+        criterion_i = criterion_default
+        max_features_i = random.sample(max_features_default, 2)
+        #生成SVR
+        gbr_i = GBRgenerator(X_group, y_group, loss_i, learning_rate_i, criterion_i, max_features_i)
+        estimators_group.append((name_i, gbr_i))
+        #反馈信息
+        self_score = model_self_check_return_score(gbr_i, X_group, y_group)
+        print("GBR: " + str(i + 1) + "/" + str(number) + " done! " + "score: " + str(self_score) + "  " + str(gbr_i))
+    #反馈信息
+    print("We have successfully generated " + str(number) + " GBR(s).")
+    return estimators_group
+
+#ABR生成器
+#X_single, y_single表示它们是单个ABR的X, y
+#X_group, y_group表示它们是一堆ABR的X, y
+#单个ABR，包含fit，使用了GridSearchCV
+def ABRgenerator(X_single, y_single, loss, learning_rate, n_estimators):
+    abr_init = AdaBoostRegressor()
+    para = {"loss": loss,
+            "learning_rate": learning_rate,
+            "n_estimators": n_estimators
+            }
+    grid_abr = GridSearchCV(abr_init, para, n_jobs=-1)
+    grid_abr.fit(X_single, y_single)
+    return grid_abr.best_estimator_
+
+#批量生成ABR，返回VotingRegressor所需的estimators列表
+#number制定要产生多少个ABR
+#这个方法限定了各个超参数的取值（单独设置太麻烦了）
+def ABRgroup(X_group, y_group, number):
+    #默认值
+    loss_default = ['linear', 'square', 'exponential']
+    learning_rate_default = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2]
+    n_estimators_default = [30, 40, 50, 60, 70, 80, 90]
+    #初始化返回值
+    estimators_group = []
+    #循环生成SVR
+    print("Generating ABR(s).")
+    for i in range(number):
+        name_i = "abr_" + str(i)
+        #随机选取超参数
+        loss_i = random.sample(loss_default, 2)
+        learning_rate_i = random.sample(learning_rate_default, 3)
+        n_estimators_i = random.sample(n_estimators_default, 3)
+        #生成SVR
+        abr_i = ABRgenerator(X_group, y_group, loss_i, learning_rate_i, n_estimators_i)
+        estimators_group.append((name_i, abr_i))
+        #反馈信息
+        self_score = model_self_check_return_score(abr_i, X_group, y_group)
+        print("ABR: " + str(i + 1) + "/" + str(number) + " done! " + "score: " + str(self_score) + "  " + str(abr_i))
+    #反馈信息
+    print("We have successfully generated " + str(number) + " ABR(s).")
+    return estimators_group
+
+#批量产生SVR、GBR、ABR
+def model_generator_all(X, y, svr_num, gbr_num, abr_num):
+    #先用GridSearch找出最佳的SVR、GBR、ABR，再将它们传入VotingRegressor
+    print("We will generate " + str(svr_num) + " SVR(s), " + str(gbr_num) + " GBR(s), " + str(abr_num) + " ABR(s).")
+    estimators_SVR = SVRgroup(X, y, svr_num)
+    estimators_GBR = GBRgroup(X, y, gbr_num)
+    estimators_ABR = ABRgroup(X, y, abr_num)
+    estimators_all = estimators_SVR + estimators_GBR + estimators_ABR
+    return estimators_all
+
+####################################################################
+#正文
+####################################################################
+#Now read the data from *.csv
+data_1 = "train.csv"
+data_2 = "test.csv"
+data_3 = "sample_submission.csv"
+
+#training set
+print("Getting the training set.")
+train_data = pd.read_csv(data_1)
+X_train = train_data.drop("SalePrice", axis=1)
+y_train = (train_data.loc[:, ["SalePrice"]]).to_numpy().ravel()#ravel()用于降维
+y_train_scaler, scaler_of_y = to_scaler(y_train)
+
+#testing X_set and y_sample
+print("Getting the testing set and the sample set.")
+X_test = pd.read_csv(data_2)
+
+y_sample = (pd.read_csv(data_3).loc[:, ["SalePrice"]]).to_numpy().ravel()#ravel()用于降维
+y_sample_index = (pd.read_csv(data_3).loc[:, ["Id"]]).to_numpy().ravel()#ravel()用于降维
+
+#cat_attribute
+cat_att = ["MSZoning", "Street", "Alley", "LotShape", "LandContour", "Utilities", "LotConfig", "LandSlope", "Neighborhood", "Condition1", "Condition2", "BldgType", "HouseStyle", "RoofStyle", "RoofMatl", "Exterior1st", "Exterior2nd", "MasVnrType", "ExterQual", "ExterCond", "Foundation", "BsmtQual", "BsmtCond", "BsmtExposure", "BsmtFinType1", "BsmtFinType2", "Heating", "HeatingQC", "CentralAir", "Electrical", "KitchenQual", "Functional", "FireplaceQu", "GarageType", "GarageFinish", "GarageQual", "GarageCond", "PavedDrive", "PoolQC", "Fence", "MiscFeature", "SaleType", "SaleCondition"]
+
+#影响较小的因素不予考虑
+cat_ignore = ["Utilities", "PoolQC"]
+num_ignore = ["ScreenPorch", "PoolArea", "MiscVal", "YrSold", "BsmtUnfSF", "2ndFlrSF", "LotArea", "LotFrontage", "MasVnrArea", "WoodDeckSF"]
+
+#在feature_importance的分析中，我们发现只有十个索引上的变量具有 0.09% 以上的重要性
+#最重要的前100个变量一共具有98.65%的feature importance
+print("Getting feature importance.")
+fi_path = "./house_feature_importance/"
+fi_zip_read = pd.read_csv(fi_path + "feature_sorted.csv")
+#all
+#index_important_feature = [2, 11, 8, 6, 9, 21, 22, 14, 4, 5]
+#chosen
+index_important_feature = list(fi_zip_read.iloc[0:100, 0])#索引
+
+#prepare the sets
+print("Preparing and refining the sets.")
+X_train_prepared, X_test_prepared = formal_transform(X_train, X_test, cat_att, cat_ignore, num_ignore, True, index_important_feature)
+print("Sets are prepared and refined.")
+print("")#换行，不然太挤了
+
+#model
+
+#先用GridSearch找出最佳的SVR、GBR、ABR，再将它们传入VotingRegressor
+print("Generating model(s) as member(s).")
+estimators = model_generator_all(X_train_prepared, y_train_scaler, svr_num=16, gbr_num=16, abr_num=10)#SVR: 16, GBR: 16, ABR: 10
+
+#for VotingRegressor
+vote_reg = VotingRegressor(estimators)
+print('VotingRegressor starts fitting.')
+vote_reg.fit(X_train_prepared, y_train_scaler)
+print('VotingRegressor fitted.')
+
+#模型自我评价
+model_self_check(vote_reg, X_train_prepared, y_train_scaler)
+print('Start predicting.')
+y_pred_scaler = vote_reg.predict(X_test_prepared)
+y_pred = from_scaler(y_pred_scaler, scaler_of_y)
+print("")#换行，不然太挤了
+
+#各种评价回归器的分数
+print("Compare our prediction with the sample of prediction(there is still no definitely correct answer):")
+generate_score(y_sample, y_pred)
+
+#储存预测结果
+model_path = "./house_model/"
+try_mkdir(model_path)
+
+#prediction_compared_with_sample.csv
+numpy_result_pre = np.array([y_sample, y_pred, ((y_pred - y_sample) / y_sample) * 100])
+numpy_result = numpy_result_pre.T
+result_pd = pd.DataFrame(numpy_result, columns=['data of the sample', 'prediction', 'deviation(%)'])
+print("Saving prediction_compared_with_sample.csv.")
+result_pd.to_csv(model_path + "prediction_compared_with_sample.csv", index=True, sep=',')
+
+#按照偏差（deviation）排序
+result_pd_read = pd.read_csv(model_path + "prediction_compared_with_sample.csv")
+result_pd_sorted = result_pd_read.sort_values(by="deviation(%)", ascending=False)
+print("Saving prediction_compared_with_sample_sorted.csv.")
+result_pd_sorted.to_csv(model_path + "prediction_compared_with_sample_sorted.csv", index=False, sep=',')
+
+#my_prediction.csv
+result_my_pre = np.array([y_sample_index, y_pred])
+result_my_T = result_my_pre.T
+result_my_pd = pd.DataFrame(result_my_T, columns=['Id', 'SalePrice'])
+print("Saving my_prediction.csv.")
+result_my_pd.to_csv(model_path + "my_prediction.csv", index=False, sep=',')
